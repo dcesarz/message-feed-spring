@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        ddl-auto: create-drop
+        show-sql: true
+        formatSql: true
+    database-platform: "org.hibernate.dialect.HSQLDialect"
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:hsqldb:mem:workDB
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
+    username: SA
+    password:
+    hikari:
+      idle-timeout: 10000
+

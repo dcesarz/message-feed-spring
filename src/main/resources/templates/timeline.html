@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" id="bootstrap-css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <title>MessAge</title>
+    <script>
+        $(document).ready(function () {
+            $(".dropdown").hover(
+                function () {
+                    $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideDown("fast");
+                    $(this).toggleClass('open');
+                },
+                function () {
+                    $('.dropdown-menu', this).not('.in .dropdown-menu').stop(true, true).slideUp("fast");
+                    $(this).toggleClass('open');
+                }
+            );
+            $("#add-txt").on('change', function () {
+                var file = $(this)[0].files[0]
+                var type = file.type
+                var size = file.size
+                if (type == "text/plain") {
+                    if (size <= 255) {
+                        var reader = new FileReader()
+                        reader.readAsText(file)
+                        reader.onloadend = function (e)
+                        {
+                            $("#messarea")[0].value = e.target.result
+                        }
+                        // $("#textarea")[0].value = reader.result
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+<nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">MessAge</a>
+    <button aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            data-target="#navbarSupportedContent" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/timeline">
+                    <i class="fa fa-home"></i>
+                    Home
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/admin-panel">
+                    <i class="fa fa-address-book-o">
+                    </i>
+                    Admin
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+                   id="navbarDropdown" role="button">
+                    <i class="fa fa-user">
+                    </i>
+                    Account
+                </a>
+                <div aria-labelledby="navbarDropdown" class="dropdown-menu">
+                    <a class="dropdown-item" href="/message-panel">Message manager</a>
+                    <a class="dropdown-item" href="/profile">Profile settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/timeline/logout">Log out</a>
+                </div>
+            </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0" method="get" th:action="@{/timeline}">
+            <input aria-label="Search" class="form-control mr-sm-2" name="msearch" placeholder="Search"
+                   th:value="${msearch}" type="text">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+</nav>
+<div class="alert alert-warning alert-dismissible fade show" role="alert" th:if="${#fields.hasErrors('${newmsg.*}')}">
+    <strong>Sending message went wrong..</strong>
+    <button aria-label="Close" class="close" data-dismiss="alert" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="jumbotron vertical-center col-md-6 offset-md-3 bg1">
+    <div class="center-block container mt-5 mb-5 vertical-center">
+        <div class="column">
+            <div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form accept-charset="UTF-8" enctype="multipart/form-data" method="POST"
+                              th:action="@{/timeline}" th:object="${newmsg}">
+                            <textarea id="messarea" class="form-control counted" cols="5" maxlength="255" name="message"
+                                      placeholder="Type in your message" style="margin-bottom:10px;"
+                                      th:field="*{content}"></textarea>
+                            <input id="add-img" name="image" type="file"/>
+                            <input id="add-txt" name="txt" type="file"/>
+                            <button class="btn btn-info" type="submit">Post New Message</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="center-block container mt-5 mb-5">
+        <div class="row">
+            <div class="">
+                <h4>What MessAges have you missed?</h4>
+                <ul class="timeline">
+                    <li th:each="message : ${msgs}">
+                        <a href="#" th:text="${message.getUserList()}"></a>
+                        <a class="float-right" href="#" th:text="${message.getCreate_date()}"></a>
+                        <p th:text="${message.getContent()}"></p>
+                        <img th:alt="${'message ' + message.id + ' image'}" th:if="${message.getHasImage()}"
+                             th:src="${'/uploaded/' + message.id + '.png'}">
+                        <div class="form-group">
+                            <label class="col-md-3 control-label"></label>
+                            <div class="col-md-8">
+                                <a th:href="@{timeline/save/{id}(id=${message.getId()})}">
+                                    <button class="btn btn-secondary" type="submit">Save message</button>
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
